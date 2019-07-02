@@ -5,6 +5,10 @@
 
     <group android:checkableBehavior="single">
         <!--TODO Add navigation to program list-->
+        <item
+            android:id="@+id/navPrograms"
+            android:icon="@drawable/ic_programs_black_24dp"
+            android:title="Programs" />
 
     </group>
 
