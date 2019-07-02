@@ -4,8 +4,6 @@ import com.example.android.androidskeletonapp.data.Sdk;
 
 public class SyncStatusHelper {
 
-    // TODO implement count methods
-
     public static int programCount() {
         return Sdk.d2().programModule().programs.count();
     };
@@ -23,6 +21,6 @@ public class SyncStatusHelper {
     }
 
     public static int dataValueCount() {
-        return 0;
+        return Sdk.d2().dataValueModule().dataValues.count();
     }
 }
