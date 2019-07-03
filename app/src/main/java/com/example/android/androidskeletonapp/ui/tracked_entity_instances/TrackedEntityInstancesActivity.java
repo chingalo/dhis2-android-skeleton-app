@@ -9,7 +9,11 @@ import com.example.android.androidskeletonapp.R;
 import com.example.android.androidskeletonapp.data.Sdk;
 import com.example.android.androidskeletonapp.ui.base.ListActivity;
 
+import org.hisp.dhis.android.core.maintenance.D2Error;
+import org.hisp.dhis.android.core.organisationunit.OrganisationUnit;
+import org.hisp.dhis.android.core.program.Program;
 import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCollectionRepository;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstanceCreateProjection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +50,27 @@ public class TrackedEntityInstancesActivity extends ListActivity {
             findViewById(R.id.enrollmentButton).setVisibility(View.GONE);
 
         findViewById(R.id.enrollmentButton).setOnClickListener(view -> {
-            // TODO Create tracked entity instance
+            OrganisationUnit organisationUnit = Sdk.d2().organisationUnitModule().organisationUnits.byOrganisationUnitScope(OrganisationUnit.Scope.SCOPE_DATA_CAPTURE).one().get();
+            Program program = Sdk.d2().programModule().programs.uid(selectedProgram).get();
+            String trackedEntityType = program.trackedEntityType().uid();
+            try{
+                Sdk.d2().trackedEntityModule().trackedEntityInstances
+                        .add(TrackedEntityInstanceCreateProjection.builder().trackedEntityType(trackedEntityType).organisationUnit(organisationUnit.uid()).build());
+            }catch (D2Error error){
+                error.printStackTrace();
+            }
             }
         );
     }
+
+    private void createNewTrackedEntityInstance(String trackedEntityTypeId, String organisationUnitId)throws D2Error {
+        Sdk.d2().trackedEntityModule().trackedEntityInstances
+                .add(TrackedEntityInstanceCreateProjection.builder()
+                        .organisationUnit(organisationUnitId)
+                        .trackedEntityType(trackedEntityTypeId)
+                        .build());
+    }
+
 
     private void observeTrackedEntityInstances() {
         TrackedEntityInstanceAdapter adapter = new TrackedEntityInstanceAdapter();
