@@ -6,6 +6,9 @@ import org.hisp.dhis.android.core.enrollment.EnrollmentCreateProjection;
 import org.hisp.dhis.android.core.enrollment.EnrollmentObjectRepository;
 import org.hisp.dhis.android.core.maintenance.D2Error;
 import org.hisp.dhis.android.core.program.ProgramTrackedEntityAttribute;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttribute;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttributeValueCollectionRepository;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityAttributeValueObjectRepository;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,11 +59,39 @@ public class EnrollmentFormService {
     public Flowable<Map<String, FormField>> getEnrollmentFormFields() {
 
         return Flowable.fromCallable(() -> {
-                    return new ArrayList<ProgramTrackedEntityAttribute>(); //TODO: replace with program attributes
+                    String programId = getProgramUid();
+                    return d2.programModule().programs.uid(programId).withAllChildren().get().programTrackedEntityAttributes();
                 }
         ).map(programAttributeList -> {
 
             //TODO for each programAttribute create and store a FormField Object into the fieldMap object
+            for(ProgramTrackedEntityAttribute programTrackedEntityAttribute : programAttributeList){
+
+                TrackedEntityAttribute trackedEntityAttribute = d2.trackedEntityModule()
+                        .trackedEntityAttributes
+                        .uid(programTrackedEntityAttribute.trackedEntityAttribute().uid())
+                        .get();
+                String value = null;
+
+                TrackedEntityAttributeValueObjectRepository respository = d2.trackedEntityModule().trackedEntityAttributeValues.value(trackedEntityAttribute.uid(),enrollmentRepository.get().trackedEntityInstance());
+                Boolean isExist = respository.exists();
+                if(isExist){
+                    value = respository.get().value();
+                }
+
+
+                FormField formField = new FormField(
+                        trackedEntityAttribute.uid(),
+                        trackedEntityAttribute.optionSet() != null ? trackedEntityAttribute.optionSet().uid() : null,
+                        trackedEntityAttribute.valueType(),
+                        trackedEntityAttribute.formName(),
+                        value,
+                        null,
+                        true,
+                        null);
+
+                fieldMap.put(trackedEntityAttribute.uid(),formField);
+            }
 
             return fieldMap;
         });
@@ -88,6 +119,10 @@ public class EnrollmentFormService {
         } catch (D2Error d2Error) {
             d2Error.printStackTrace();
         }
+    }
+
+    public String getProgramUid() {
+        return  enrollmentRepository.get().program();
     }
 
     public String getEnrollmentUid() {
