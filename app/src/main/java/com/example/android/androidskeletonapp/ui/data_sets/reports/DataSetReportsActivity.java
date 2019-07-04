@@ -12,6 +12,8 @@ import com.example.android.androidskeletonapp.ui.base.ListActivity;
 
 import org.hisp.dhis.android.core.datavalue.DataSetReport;
 
+import java.util.List;
+
 public class DataSetReportsActivity extends ListActivity {
 
     @Override
@@ -24,6 +26,16 @@ public class DataSetReportsActivity extends ListActivity {
     private void observeDataSetReports() {
         DataSetReportsAdapter adapter = new DataSetReportsAdapter();
         recyclerView.setAdapter(adapter);
+
+        LiveData<PagedList<DataSetReport>> dataSetReportsLiveData = Sdk.d2()
+                .dataValueModule()
+                .dataSetReports
+                .getPaged(10);
+
+        dataSetReportsLiveData.observe(this, dataSetReports -> {
+            adapter.submitList(dataSetReports);
+            findViewById(R.id.dataSetReportsNotificator).setVisibility(dataSetReports.isEmpty()? View.VISIBLE : View.GONE);
+        });
 
         // TODO Get a LiveData for a PagedList from dataSetReports repository (dataValueModule)
         //  Pass this LiveData to the dataSetAdapter
