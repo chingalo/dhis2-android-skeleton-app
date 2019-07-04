@@ -1,5 +1,6 @@
 package com.example.android.androidskeletonapp.ui.main;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +25,8 @@ import com.google.android.material.snackbar.Snackbar;
 import org.hisp.dhis.android.core.user.User;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -74,7 +77,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private User getUser() {
-        return Sdk.d2().userModule().user.getWithoutChildren();
+        String query = "SELECT * FROM User";
+        User user = null;
+        try (Cursor cursor = Sdk.d2().databaseAdapter().query(query)){
+            cursor.moveToFirst();
+            user = User.create(cursor);
+        }
+        return user;
     }
 
     @Override
