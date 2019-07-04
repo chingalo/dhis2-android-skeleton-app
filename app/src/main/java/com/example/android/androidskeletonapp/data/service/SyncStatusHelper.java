@@ -3,6 +3,9 @@ package com.example.android.androidskeletonapp.data.service;
 import com.example.android.androidskeletonapp.data.Sdk;
 
 import org.hisp.dhis.android.core.common.State;
+import org.hisp.dhis.android.core.trackedentity.TrackedEntityInstance;
+
+import java.util.List;
 
 public class SyncStatusHelper {
 
@@ -27,7 +30,7 @@ public class SyncStatusHelper {
     }
 
     public static boolean isThereDataToUpload() {
-        // TODO Logic to know if there is data to upload
-        return true;
+        List<TrackedEntityInstance> trackedEntityInstanceList = Sdk.d2().trackedEntityModule().trackedEntityInstances.byState().in(State.TO_POST,State.TO_UPDATE,State.TO_DELETE).get();
+        return trackedEntityInstanceList.size() > 0;
     }
 }
