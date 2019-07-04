@@ -3,6 +3,7 @@ package com.example.android.androidskeletonapp.data.service;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.example.android.androidskeletonapp.R;
@@ -56,6 +57,20 @@ public class StyleBinderHelper {
     }
 
     public static void setState(State state, ImageView syncIcon) {
-        // TODO set state for tracked entity instance
+        if(state == null){
+            syncIcon.setVisibility(View.GONE);
+        }else{
+            syncIcon.setVisibility(View.VISIBLE);
+            if(state == State.SYNCED){
+                syncIcon.setImageResource(R.drawable.ic_sync);
+                setBackgroundColor(R.color.colorAccent,syncIcon);
+            }else if(state == State.TO_POST || state == State.TO_UPDATE){
+                syncIcon.setImageResource(R.drawable.ic_not_sync);
+                setBackgroundColor(R.color.colorAccentAlt,syncIcon);
+            }else {
+                syncIcon.setImageResource(R.drawable.ic_not_sync);
+                setBackgroundColor(R.color.colorWarn,syncIcon);
+            }
+        }
     }
 }
